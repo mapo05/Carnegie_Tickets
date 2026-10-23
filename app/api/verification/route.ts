@@ -1,4 +1,8 @@
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { listReservationEvents } from '@/state/reservations';
+import { withPrivatePhoto } from './photo-storage';
+
+export const runtime = 'nodejs';
 
 type VerificationSession = {
   attempts: number;
@@ -19,10 +23,6 @@ globalThis.carnegieVerificationSessions = sessions;
 
 const confirmationLifetime = 30 * 60 * 1000;
 const helpEmail = 'tickets@example.edu';
-const demoEvents = [
-  { id: 'welcome', title: 'Campus Welcome Event', date: 'October 12', time: '6:00 PM', place: 'Main Hall', price: 'Free', ticketsLeft: 42 },
-  { id: 'mixer', title: 'Student Mixer Night', date: 'October 18', time: '7:30 PM', place: 'Student Center', price: 'Free', ticketsLeft: 18 },
-];
 
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json(body, { status });
@@ -65,7 +65,7 @@ async function confirmStudent(request: Request) {
   session.confirmationToken = undefined;
   session.email = undefined;
   session.expiresAt = Date.now() + confirmationLifetime;
-  return json({ status: 'verified', verifiedName: session.verifiedName, events: demoEvents });
+  return json({ status: 'verified', verifiedName: session.verifiedName, events: listReservationEvents() });
 }
 
 export async function POST(request: Request) {
@@ -110,19 +110,27 @@ export async function POST(request: Request) {
       return json({ status: 'blocked', message: `Contact the organizers at ${helpEmail} for help.`, flowId });
     }
 
-    const photoText = (await photo.text()).toLowerCase();
-    const normalizedName = normalizeName(fullName);
-    const normalizedId = normalizeStudentId(studentId);
-    const nameVariants = [normalizedName, normalizedName.replace(/\s+/g, '')];
-    const idVariants = [
-      normalizedId,
-      normalizedId.replace(/\s+/g, ''),
-      studentId.trim().toLowerCase(),
-      studentId.trim().toLowerCase().replace(/[\s-]+/g, ''),
-    ];
-    const photoMatches = photoText.includes('match-photo') ||
-      (nameVariants.some((nameVariant) => photoText.includes(nameVariant)) &&
-        idVariants.some((idVariant) => photoText.includes(idVariant)));
+    let photoMatches: boolean;
+    try {
+      const photoBuffer = Buffer.from(await photo.arrayBuffer());
+      photoMatches = await withPrivatePhoto(photoBuffer, photo.type, async (_sanitizedPhoto) => {
+        const photoText = photoBuffer.toString('utf8').toLowerCase();
+        const normalizedName = normalizeName(fullName);
+        const normalizedId = normalizeStudentId(studentId);
+        const nameVariants = [normalizedName, normalizedName.replace(/\s+/g, '')];
+        const idVariants = [
+          normalizedId,
+          normalizedId.replace(/\s+/g, ''),
+          studentId.trim().toLowerCase(),
+          studentId.trim().toLowerCase().replace(/[\s-]+/g, ''),
+        ];
+        return photoText.includes('match-photo') ||
+          (nameVariants.some((nameVariant) => photoText.includes(nameVariant)) &&
+            idVariants.some((idVariant) => photoText.includes(idVariant)));
+      });
+    } catch {
+      return json({ status: 'error', message: 'Photo verification is temporarily unavailable. Please try again later.' }, 503);
+    }
     session.attempts += 1;
     session.expiresAt = Date.now() + confirmationLifetime;
 

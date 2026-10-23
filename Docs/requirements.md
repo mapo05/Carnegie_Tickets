@@ -167,3 +167,15 @@ Carnegie Tickets lets verified students buy event tickets with Stripe. A student
 4. **Backups vs 14-day deletion** (A-16): accept 30-day backup expiry?
 5. **Help address and ID-number pattern** (A-20, A-25).
 6. **Expected crowd size on sale day** (A-23).
+
+## Scope for HW3
+
+- Build story [7]: [Reserve event tickets for attendees].
+- No real payments. Where the spec says to charge a card, use a
+  "Simulated payment" button and list real payments as a non-goal in
+  the README.
+- No sign-in provider. Where the spec needs a signed-in user, use a
+  name typed into a text box and list real authentication as a
+  non-goal.
+- No database. Keep data in memory on the server and say in the README
+  that it resets on every deploy.

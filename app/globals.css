@@ -532,6 +532,111 @@ p {
   font-size: 11px;
 }
 
+.reservation-form,
+.checkout-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 30px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.reservation-form h3,
+.checkout-panel h3 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.reservation-form > p,
+.checkout-panel > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.reservation-form label {
+  margin-top: 6px;
+  color: #343e38;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reservation-form input,
+.reservation-form select {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #c9cec9;
+  border-radius: 2px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.checkout-total {
+  color: var(--green) !important;
+  font-size: 18px !important;
+  font-weight: 700;
+}
+
+.payment-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.payment-actions .primary-button {
+  margin-top: 0;
+}
+
+.secondary-button {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.secondary-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.reservation-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.error-message {
+  color: #772d30;
+}
+
+.ticket-number-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticket-number-list li {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  color: var(--green);
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
 .page-footer {
   min-height: 58px;
   display: flex;
@@ -656,6 +761,15 @@ a:focus-visible {
 
   .event-meta span {
     max-width: 85px;
+  }
+
+  .reservation-form,
+  .checkout-panel {
+    padding: 18px;
+  }
+
+  .payment-actions {
+    grid-template-columns: 1fr;
   }
 
   .page-footer {
